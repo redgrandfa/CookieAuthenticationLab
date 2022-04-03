@@ -1,0 +1,22 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+
+@if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+{
+    <ul>
+        <li>@User.Identity.Name</li>
+        <li>@User.Identity.AuthenticationType</li>
+        <li>@User.Identity.IsAuthenticated</li>
+        <li><a asp-controller="Account" asp-action="Logout">登出</a></li>
+    </ul>
+}
+else
+{
+    <ul>
+        <li><a asp-controller="Account" asp-action="Login">登入</a></li>
+    </ul>
+}

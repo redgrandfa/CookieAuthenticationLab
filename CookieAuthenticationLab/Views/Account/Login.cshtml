@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model CookieAuthenticationLab.ViewModels.LoginInputViewModel
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="EmailXXX"></label>
+        <input asp-for="EmailXXX" class="form-control">
+        <span asp-validation-for="EmailXXX" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PasswordXXX"></label>
+        <input asp-for="PasswordXXX" class="form-control">
+        <span asp-validation-for="PasswordXXX" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-default">登入</button>
+    </div>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
