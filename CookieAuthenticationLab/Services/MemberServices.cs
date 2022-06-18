@@ -15,6 +15,7 @@ namespace CookieAuthenticationLab.Services
             {
                 return new AuthenticatedUser()
                 {
+                    MemberID = 1,
                     Email = email,
                     Name = "John"
                 };

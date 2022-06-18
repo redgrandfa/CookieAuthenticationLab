@@ -232,6 +232,7 @@ public IActionResult Login([Bind]LoginInputViewModel input, string returnUrl = n
 ```csharp
 public class AuthenticatedUser
 {
+    public int MemberID { get; set; }
     public string Email { get; set; }
     public string Name { get; set; } 
 }
@@ -251,6 +252,7 @@ public class MemberServices
         {
             return new AuthenticatedUser()
             {
+                MemberID = 1,
                 Email = email,
                 Name = "John"
             };
@@ -312,13 +314,16 @@ if (user == null) //驗證未通過
     ...
 }
 
-//各項資訊
+//驗證後=知道了此人是誰，發行各項聲明資訊
 var claims = new List<Claim>
 {
-    new Claim(ClaimTypes.Name, user.Email), //基本上，此值須填一般所認知的"帳號"而非姓名，確保不與其他使用者重複。
-    new Claim("UserName", user.Name),
+    new Claim(ClaimTypes.NameIdentifier, user.MemberID.ToString() ),
+    new Claim(ClaimTypes.Name, user.Name),
+    new Claim(ClaimTypes.Name, user.Email),
+    //自行查看ClaimTypes底下有那些實用的常數
+    
     new Claim("phone", "0911444444"),
-    new Claim("phone", "0922444444"),//ClaimType可以重複
+    new Claim("phone", "0922444444"),//一個ClaimType可以重複添加直
 };
 
 //用上面的資訊集合，造一個ClaimsIdentity物件。
@@ -354,7 +359,7 @@ var authProperties = new AuthenticationProperties
     //IsPersistent = true,
 };
 
-//登入方法，會創造一個cookie
+//將此ClaimsPrincipal登入。登入方法，會創造一個cookie
 await HttpContext.SignInAsync(
     CookieAuthenticationDefaults.AuthenticationScheme, //只是個字串"Cookies"
     claimsPrincipal, 
@@ -402,14 +407,11 @@ public async Task<IActionResult> Logout()
 在Views/Shared資料夾中加入空白檢視檔，命名為_LoginPartial.cshtml。加入以下程式碼：
 
 ```html
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
-
-@if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+@if (User.Identity.IsAuthenticated)
 {
     <ul>
         <li>@User.Identity.Name</li>
         <li>@User.Identity.AuthenticationType</li>
-        <li>@User.Identity.IsAuthenticated</li>
         <li><a asp-controller="Account" asp-action="Logout">登出</a></li>
     </ul>
 }
@@ -578,7 +580,7 @@ Attribute可以掛在Controller或Action上，也可以疊加；
 [Authorize(Roles = "B")]
 public class HomeController : Controller
 {
-    public IActionResult RequireRoleAOrRoleB()
+    public IActionResult RequireRoleAAndRoleB()
     {
         return Content("因Controller要求，須具備A角色 且 具備B角色");
     }

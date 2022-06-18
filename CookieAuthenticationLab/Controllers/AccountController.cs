@@ -30,7 +30,7 @@ namespace CookieAuthenticationLab.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> LoginAsync([Bind] LoginInputViewModel input, string returnUrl = null)
+        public async Task<IActionResult> LoginAsync([Bind] LoginInputViewModel input, string returnUrl = null)//returnUrl 會帶著
         {
             if (!ModelState.IsValid)
             {
@@ -44,13 +44,17 @@ namespace CookieAuthenticationLab.Controllers
                 ModelState.AddModelError(string.Empty, $"帳戶:{input.EmailXXX} 不存在");
                 return View(input); //體貼地將資料填回去
             }
-            //各項資訊
+
+            //驗證後=知道了此人是誰，發行各項聲明資訊
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email), //基本上，此值須填一般所認知的"帳號"而非姓名，確保不與其他使用者重複。
-                new Claim("UserName", user.Name),
+                new Claim(ClaimTypes.NameIdentifier, user.MemberID.ToString() ),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Name, user.Email),
+                //自行查看ClaimTypes底下有那些實用的常數
+                
                 new Claim("phone", "0911444444"),
-                new Claim("phone", "0922444444"),//ClaimType可以重複
+                new Claim("phone", "0922444444"),//一個ClaimType可以重複添加直
             };
 
             //用上面的資訊集合，造一個ClaimsIdentity物件。
@@ -72,12 +76,11 @@ namespace CookieAuthenticationLab.Controllers
                 //IsPersistent = true,
             };
 
-            //登入方法，會創造一個cookie
+            //將此ClaimsPrincipal登入。登入方法，會創造一個cookie
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme, //只是個字串"Cookies"
                 claimsPrincipal,
                 authProperties);
-            _logger.LogInformation($"帳戶{user.Email} 登入於 {DateTime.UtcNow}");
 
             //重新導向至前一頁面
             return LocalRedirect(returnUrl ?? "/");
